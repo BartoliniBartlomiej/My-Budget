@@ -1,6 +1,8 @@
 #pragma once 
 
 #include <string>
+#include <vector>
+#include <iostream>
 
 #include "Transaction.hpp"
 
@@ -18,6 +20,7 @@ public:
         : login(login),
           password(plainPassword)
     {}
+    User() {}
 
     int getId() const                   {   return id;          }
     std::string getName() const         {   return name;        }
