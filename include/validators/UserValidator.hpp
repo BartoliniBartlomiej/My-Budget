@@ -4,6 +4,6 @@
 
 class UserValidator {
 public:
-    bool validateLogin(std::string loginToValidation);
-    bool validatePassword(std::string passwordToValidation);
+    bool validateLogin(const std::string& loginToValidation);
+    bool validatePassword(const std::string& passwordToValidation);
 };
