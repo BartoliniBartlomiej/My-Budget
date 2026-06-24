@@ -5,8 +5,10 @@ void CategoryService::initializeDefaultCategories() {
         categoryRepository.add(Category("Food", CategoryType::FOOD, 0));
         categoryRepository.add(Category("Housing", CategoryType::HOUSING, 0));
         categoryRepository.add(Category("Transport", CategoryType::TRANSPORT, 0));
+        categoryRepository.add(Category("Health", CategoryType::HEALTH, 0));
         categoryRepository.add(Category("Entertainment", CategoryType::ENTERTAINMENT, 0));
         categoryRepository.add(Category("Salary", CategoryType::SALARY, 0));
+        categoryRepository.add(Category("Other", CategoryType::OTHER, 0));
     }
 }
 

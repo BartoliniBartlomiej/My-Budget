@@ -10,12 +10,12 @@ LoginWindow::LoginWindow(AuthService& auth, QWidget* parent)
 }
 
 void LoginWindow::setupUi() {
-    setWindowTitle("Spending Manager - Logowanie");
+    setWindowTitle("My Budget - Login");
     resize(350, 250);
 
     QVBoxLayout* layout = new QVBoxLayout(this);
 
-    QLabel* titleLabel = new QLabel("Witaj w Spending Manager", this);
+    QLabel* titleLabel = new QLabel("My Budget", this);
     titleLabel->setAlignment(Qt::AlignCenter);
     QFont font = titleLabel->font();
     font.setPointSize(16);
@@ -28,14 +28,14 @@ void LoginWindow::setupUi() {
     layout->addWidget(loginInput);
 
     passwordInput = new QLineEdit(this);
-    passwordInput->setPlaceholderText("Hasło");
+    passwordInput->setPlaceholderText("Password");
     passwordInput->setEchoMode(QLineEdit::Password);
     layout->addWidget(passwordInput);
 
-    loginButton = new QPushButton("Zaloguj się", this);
+    loginButton = new QPushButton("Log in", this);
     layout->addWidget(loginButton);
 
-    registerButton = new QPushButton("Zarejestruj nowe konto", this);
+    registerButton = new QPushButton("Sign in", this);
     layout->addWidget(registerButton);
 
     statusLabel = new QLabel("", this);
@@ -54,7 +54,7 @@ void LoginWindow::handleLogin() {
         statusLabel->setText("");
         emit loginSuccessful(sessionOpt.value());
     } else {
-        statusLabel->setText("Błędny login lub hasło!");
+        statusLabel->setText("Incorrect login or/and password!");
     }
 }
 
@@ -63,9 +63,9 @@ void LoginWindow::handleRegister() {
     std::string password = passwordInput->text().toStdString();
 
     if (authService.registerUser(login, password)) {
-        QMessageBox::information(this, "Sukces", "Konto zostało utworzone! Możesz się teraz zalogować.");
+        QMessageBox::information(this, "Success", "Account created. You can log now.");
         statusLabel->setText("");
     } else {
-        statusLabel->setText("Rejestracja nieudana (min. 3 zn. login, 6 zn. hasło)!");
+        statusLabel->setText("Failed registration. (min. 3 char. login, 6 char. password)!");
     }
 }
