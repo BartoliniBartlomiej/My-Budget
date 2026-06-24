@@ -35,4 +35,6 @@ public:
     bool isRecurring() const {
         return recurrence != RecurrenceInterval::NONE;
     }
+
+    void setId(int _id) { this->id = _id; }
 };

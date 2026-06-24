@@ -16,4 +16,6 @@ public:
     std::string  getName()   const {   return name;  }
     CategoryType getType()   const {   return type;  }
     int          getUserId() const {   return userId;}
+
+    void setId(int id) { this->id = id; }
 };
