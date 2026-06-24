@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - develop
+      - GUI
   pull_request:
 
 jobs:
