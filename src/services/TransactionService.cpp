@@ -43,7 +43,7 @@ bool TransactionService::addTransaction(double amount, int categoryId, const std
         return false;
     }
 
-    Transaction transaction(amount, categoryId, date, description, session.getUserId(), recurrence, type);
+    Transaction transaction(amount, categoryId, categoryOpt->getType(), date, description, session.getUserId(), recurrence, type);
     transactionRepository.add(transaction);
     return true;
 }

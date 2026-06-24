@@ -23,17 +23,16 @@ MainWindow::MainWindow(const Session& activeSession,
 }
 
 void MainWindow::setupUi() {
-    setWindowTitle(QString("Spending Manager - Panel: %1").fromStdString(session.getUsername()));
+    setWindowTitle(QString("My Budget - Panel: %1").fromStdString(session.getUsername()));
     resize(800, 500);
 
-    // Główny widget i horyzontalny layout dzielący okno na Lewo/Prawo
     QWidget* centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
     QHBoxLayout* mainLayout = new QHBoxLayout(centralWidget);
 
-    // ================= LEWY PANEL: FORMULARZ =================
+    // ================= LEFT PANEL =================
     QVBoxLayout* leftLayout = new QVBoxLayout();
-    QLabel* formTitle = new QLabel("Dodaj nową transakcję", this);
+    QLabel* formTitle = new QLabel("Add new transaction", this);
     formTitle->setStyleSheet("font-weight: bold; font-size: 14px;");
     leftLayout->addWidget(formTitle);
 
@@ -41,38 +40,37 @@ void MainWindow::setupUi() {
     
     amountInput = new QLineEdit(this);
     amountInput->setPlaceholderText("0.00");
-    formLayout->addRow("Kwota (PLN):", amountInput);
+    formLayout->addRow("Amount (PLN):", amountInput);
 
     categoryComboBox = new QComboBox(this);
-    formLayout->addRow("Kategoria:", categoryComboBox);
+    formLayout->addRow("Category:", categoryComboBox);
 
     transactionTypeComboBox = new QComboBox(this);
-    formLayout->addRow("Typ tranzakcji:", transactionTypeComboBox);
+    formLayout->addRow("Transaction Type:", transactionTypeComboBox);
 
     descriptionInput = new QLineEdit(this);
-    descriptionInput->setPlaceholderText("np. Zakupy w sklepie");
-    formLayout->addRow("Opis:", descriptionInput);
+    descriptionInput->setPlaceholderText("e.g., Shopping at the store");
+    formLayout->addRow("Description:", descriptionInput);
 
     leftLayout->addLayout(formLayout);
 
-    addTransactionButton = new QPushButton("Dodaj transakcję", this);
+    addTransactionButton = new QPushButton("Add Transaction", this);
     leftLayout->addWidget(addTransactionButton);
-    leftLayout->addStretch(); // Spycha elementy do góry
+    leftLayout->addStretch();
 
-    // ================= PRAWY PANEL: TABELA =================
+    // ================= RIGHT PANEL (TABLE) =================
     QVBoxLayout* rightLayout = new QVBoxLayout();
-    QLabel* tableTitle = new QLabel("Historia transakcji", this);
+    QLabel* tableTitle = new QLabel("Transaction History", this);
     tableTitle->setStyleSheet("font-weight: bold; font-size: 14px;");
     rightLayout->addWidget(tableTitle);
 
     transactionTable = new QTableWidget(this);
     transactionTable->setColumnCount(4);
-    transactionTable->setHorizontalHeaderLabels({"Data", "Kwota", "Kategoria", "Opis"});
+    transactionTable->setHorizontalHeaderLabels({"Date", "Amount", "Category", "Description"});
     transactionTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    transactionTable->setEditTriggers(QAbstractItemView::NoEditTriggers); // Tabela tylko do odczytu
+    transactionTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     rightLayout->addWidget(transactionTable);
 
-    // Łączenie paneli w główny layout (proporcja 1 do 2)
     mainLayout->addLayout(leftLayout, 1);
     mainLayout->addLayout(rightLayout, 2);
 }
@@ -81,7 +79,7 @@ void MainWindow::loadCategories() {
     categoryComboBox->clear();
     auto categories = categoryService.getAvailableCategories(session);
     for (const auto& cat : categories) {
-        // Przechowujemy nazwę jako tekst, a ID kategorii ukrywamy w QVariant (userData)
+
         categoryComboBox->addItem(QString::fromStdString(cat.getName()), cat.getId());
     }
 }
@@ -110,14 +108,13 @@ void MainWindow::loadTransactionTypes() {
 
 void MainWindow::refreshTransactionHistory() {
     auto history = transactionService.getTransactionHistory(session);
-    transactionTable->setRowCount(0); // Czyszczenie tabeli
+    transactionTable->setRowCount(0); 
 
     for (int i = 0; i < history.size(); ++i) {
         transactionTable->insertRow(i);
         
-        // Wyciągamy nazwę kategorii po jej ID, żeby w tabeli nie wyświetlać cyfry
         auto catOpt = categoryService.getAvailableCategories(session);
-        QString catName = "Nieznana";
+        QString catName = "Unknown";
         for(const auto& c : catOpt) {
             if(c.getId() == history[i].getCategoryId()) {
                 catName = QString::fromStdString(c.getName());
@@ -144,6 +141,6 @@ void MainWindow::handleAddTransaction() {
         amountInput->clear();
         descriptionInput->clear();
     } else {
-        QMessageBox::warning(this, "Błąd", "Nie udało się dodać transakcji. Sprawdź poprawność kwoty.");
+        QMessageBox::warning(this, "Error", "Failed to add transaction. Please check the amount.");
     }
 }
