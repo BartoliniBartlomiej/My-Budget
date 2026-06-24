@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IcategoryRepository.hpp"
+#include "ICategoryRepository.hpp"
 
 class InMemoryCategoryRepository : public ICategoryRepository {
 private:

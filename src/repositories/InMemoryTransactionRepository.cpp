@@ -6,7 +6,7 @@ void InMemoryTransactionRepository::add(const Transaction& transaction) {
     transactions.push_back(newTransaction);
 }
 
-std::vector InMemoryTransactionRepository::getByUserId(int userId) const {
+std::vector<Transaction> InMemoryTransactionRepository::getByUserId(int userId) const {
     std::vector<Transaction> userTransactions;
 
     for (const auto& transaction : transactions) {
@@ -18,7 +18,7 @@ std::vector InMemoryTransactionRepository::getByUserId(int userId) const {
 }
 
 bool InMemoryTransactionRepository::removeById(int id) {
-    for (auto it = transaction.begin(); it != transaction.end(); ++it) {
+    for (auto it = transactions.begin(); it != transactions.end(); ++it) {
         if (it->getId() == id) {
             transactions.erase(it);
             return true;
