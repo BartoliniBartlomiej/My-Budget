@@ -13,7 +13,7 @@ TEST(CategoryServiceTest, InitializesDefaultCategories)
 
     auto categories = categoryService.getAvailableCategories(session);
 
-    EXPECT_EQ(categories.size(), 5);
+    EXPECT_EQ(categories.size(), 7);
 }
 
 TEST(CategoryServiceTest, CreatesPrivateCategoryForUser)
@@ -48,7 +48,7 @@ TEST(CategoryServiceTest, UserSeesCreatedPrivateCategory)
 
     auto categories = categoryService.getAvailableCategories(session);
 
-    EXPECT_EQ(categories.size(), 6);
+    EXPECT_EQ(categories.size(), 8); // 7 default + 1 private
 }
 
 TEST(CategoryServiceTest, PrivateCategoryIsNotVisibleToOtherUsers)
@@ -68,5 +68,5 @@ TEST(CategoryServiceTest, PrivateCategoryIsNotVisibleToOtherUsers)
 
     auto categories = categoryService.getAvailableCategories(anotherSession);
 
-    EXPECT_EQ(categories.size(), 5);
+    EXPECT_EQ(categories.size(), 7);
 }
