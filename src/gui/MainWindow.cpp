@@ -48,9 +48,9 @@ void MainWindow::setupUi() {
     transactionTypeComboBox = new QComboBox(this);
     formLayout->addRow("Transaction Type:", transactionTypeComboBox);
 
-    descriptionInput = new QLineEdit(this);
-    descriptionInput->setPlaceholderText("e.g., Shopping at the store");
-    formLayout->addRow("Description:", descriptionInput);
+    titleInput = new QLineEdit(this);
+    titleInput->setPlaceholderText("e.g., Shopping at the store");
+    formLayout->addRow("Title:", titleInput);
 
     leftLayout->addLayout(formLayout);
 
@@ -66,7 +66,7 @@ void MainWindow::setupUi() {
 
     transactionTable = new QTableWidget(this);
     transactionTable->setColumnCount(4);
-    transactionTable->setHorizontalHeaderLabels({"Date", "Amount", "Category", "Description"});
+    transactionTable->setHorizontalHeaderLabels({"Date", "Amount", "Category", "Title"});
     transactionTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     transactionTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     rightLayout->addWidget(transactionTable);
@@ -125,7 +125,7 @@ void MainWindow::refreshTransactionHistory() {
         transactionTable->setItem(i, 0, new QTableWidgetItem(QString::fromStdString(history[i].getDate())));
         transactionTable->setItem(i, 1, new QTableWidgetItem(QString::number(history[i].getAmount(), 'f', 2) + " PLN"));
         transactionTable->setItem(i, 2, new QTableWidgetItem(catName));
-        transactionTable->setItem(i, 3, new QTableWidgetItem(QString::fromStdString(history[i].getDescription())));
+        transactionTable->setItem(i, 3, new QTableWidgetItem(QString::fromStdString(history[i].getTitle())));
     }
 }
 
@@ -133,13 +133,13 @@ void MainWindow::handleAddTransaction() {
     double amount = amountInput->text().toDouble();
     int catId = categoryComboBox->currentData().toInt();
     TransactionType type = static_cast<TransactionType>(transactionTypeComboBox->currentData().toInt());
-    std::string description = descriptionInput->text().toStdString();
+    std::string title = titleInput->text().toStdString();
     std::string currentDate = QDate::currentDate().toString("yyyy-MM-dd").toStdString();
     
-    if (transactionService.addTransaction(amount, catId, currentDate, description, RecurrenceInterval::NONE, session, type)) {
+    if (transactionService.addTransaction(amount, catId, currentDate, title, RecurrenceInterval::NONE, session, type)) {
         refreshTransactionHistory();
         amountInput->clear();
-        descriptionInput->clear();
+        titleInput->clear();
     } else {
         QMessageBox::warning(this, "Error", "Failed to add transaction. Please check the amount.");
     }

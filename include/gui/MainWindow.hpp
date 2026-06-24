@@ -20,7 +20,7 @@ private:
     QTableWidget* transactionTable;
     QLineEdit* amountInput;
     QComboBox* categoryComboBox;
-    QLineEdit* descriptionInput;
+    QLineEdit* titleInput;
     QPushButton* addTransactionButton;
     QComboBox* transactionTypeComboBox;
 
