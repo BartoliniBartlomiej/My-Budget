@@ -31,9 +31,9 @@ public:
     Transaction(double _amount, int _categoryId, std::string _date, std::string _description, int _userId, RecurrenceInterval _recurrence, TransactionType _type)
     : id(0), amount(_amount), categoryId(_categoryId), date(_date), description(_description), userId(_userId), recurrence(_recurrence), type(_type) {}
 
-    // Zmień ten konstruktor:
-    Transaction(double _amount, int _categoryId, CategoryType _categoryType, std::string _date, std::string _description, int _userId, RecurrenceInterval _recurrence, TransactionType _type)
-    : id(0), amount(_amount), categoryId(_categoryId), categoryType(_categoryType), date(_date), description(_description), userId(_userId), recurrence(_recurrence), type(_type) {}
+    // Contructor used primarily
+    Transaction(double _amount, int _categoryId, CategoryType _categoryType, std::string _date, std::string _title, int _userId, RecurrenceInterval _recurrence, TransactionType _type)
+    : id(0), amount(_amount), categoryId(_categoryId), categoryType(_categoryType), date(_date), title(_title), userId(_userId), recurrence(_recurrence), type(_type) {}
 
     int                getId()                const { return id;                }
     int                getUserId()            const { return userId;            }
