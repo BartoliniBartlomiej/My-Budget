@@ -1,14 +1,24 @@
-#include <iostream>
-
-#include "include/models/User.hpp"
+#include "include/repositories/InMemoryUserRepository.hpp"
+#include "include/repositories/InMemoryCategoryRepository.hpp"
+#include "include/repositories/InMemoryTransactionRepository.hpp"
+#include "include/validators/UserValidator.hpp"
+#include "include/services/AuthService.hpp"
+#include "include/services/CategoryService.hpp"
+#include "include/services/TransactionService.hpp"
+#include "include/cli/CLIApp.hpp"
 
 int main() {
-    User u("test_user", "password123");
-    Transaction t1(1, 1, CategoryType::SALARY, 100.0, "Salary", "Weekly salary", "2024-06-01", RecurrenceInterval::WEEKLY, "2024-12-31");
-    Transaction t2(1, 1, CategoryType::FOOD, 50.0, "Groceries", "Aldi groceries", "2024-06-02", RecurrenceInterval::NONE, "");
-    u.addTransaction(t1);
-    u.addTransaction(t2);
-    u.printTransactions();
+    InMemoryUserRepository      userRepo;
+    InMemoryCategoryRepository  categoryRepo;
+    InMemoryTransactionRepository transactionRepo;
+    UserValidator               userValidator;
+
+    AuthService         authService(userRepo, userValidator);
+    CategoryService     categoryService(categoryRepo);
+    TransactionService  transactionService(transactionRepo, categoryRepo);
+
+    CLIApp app(authService, categoryService, transactionService);
+    app.run();
 
     return 0;
 }
