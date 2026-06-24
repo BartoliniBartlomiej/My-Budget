@@ -21,6 +21,10 @@ public:
     Transaction(int _userId, int _categoryId, CategoryType _type, double _amount, std::string _title, std::string _description, std::string _date, RecurrenceInterval _recurrence = RecurrenceInterval::NONE, std::string _recurrenceEndDate = "")
         : userId(_userId), categoryId(_categoryId), type(_type), amount(_amount), title(_title), description(_description), date(_date), recurrence(_recurrence), recurrenceEndDate(_recurrenceEndDate) {}
     
+    Transaction() : id(0), amount(0.0), categoryId(0), date(""), description(""), userId(0), recurrence(RecurrenceInterval::NONE) {}
+    Transaction(double _amount, int _categoryId, std::string _date, std::string _description, int _userId, RecurrenceInterval _recurrence)
+    : id(0), amount(_amount), categoryId(_categoryId), date(_date), description(_description), userId(_userId), recurrence(_recurrence) {}
+
     int                getId()                const { return id;                }
     int                getUserId()            const { return userId;            }
     int                getCategoryId()        const { return categoryId;        }
