@@ -52,6 +52,10 @@ void MainWindow::setupUi() {
     titleInput->setPlaceholderText("e.g., Shopping at the store");
     formLayout->addRow("Title:", titleInput);
 
+    descriptionInput = new QLineEdit(this);
+    descriptionInput->setPlaceholderText("(Optional)");
+    formLayout->addRow("Description:", descriptionInput);
+
     leftLayout->addLayout(formLayout);
 
     addTransactionButton = new QPushButton("Add Transaction", this);
@@ -134,12 +138,14 @@ void MainWindow::handleAddTransaction() {
     int catId = categoryComboBox->currentData().toInt();
     TransactionType type = static_cast<TransactionType>(transactionTypeComboBox->currentData().toInt());
     std::string title = titleInput->text().toStdString();
+    std::string description = descriptionInput->text().toStdString();
     std::string currentDate = QDate::currentDate().toString("yyyy-MM-dd").toStdString();
     
-    if (transactionService.addTransaction(amount, catId, currentDate, title, RecurrenceInterval::NONE, session, type)) {
+    if (transactionService.addTransaction(amount, catId, currentDate, title, RecurrenceInterval::NONE, session, type, description)) {
         refreshTransactionHistory();
         amountInput->clear();
         titleInput->clear();
+        descriptionInput->clear();
     } else {
         QMessageBox::warning(this, "Error", "Failed to add transaction. Please check the amount.");
     }

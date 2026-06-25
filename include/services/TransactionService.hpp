@@ -17,7 +17,7 @@ public:
         : transactionRepository(tRepo), categoryRepository(cRepo) {}
         
     bool addTransaction(double amount, int categoryId, const std::string& date, const std::string& description, RecurrenceInterval recurrence, const Session& session);
-    bool addTransaction(double amount, int categoryId, const std::string& date, const std::string& title, RecurrenceInterval recurrence, const Session& session, const TransactionType type);
+    bool addTransaction(double amount, int categoryId, const std::string& date, const std::string& title, RecurrenceInterval recurrence, const Session& session, const TransactionType type, const std::string& description = "");
 
     std::vector<Transaction> getTransactionHistory(const Session& session) const;
 };

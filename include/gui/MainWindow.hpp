@@ -21,6 +21,7 @@ private:
     QLineEdit* amountInput;
     QComboBox* categoryComboBox;
     QLineEdit* titleInput;
+    QLineEdit* descriptionInput;
     QPushButton* addTransactionButton;
     QComboBox* transactionTypeComboBox;
 
