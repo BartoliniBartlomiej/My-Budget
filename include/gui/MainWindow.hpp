@@ -3,6 +3,7 @@
 #include <QMainWindow>
 #include <QTableWidget>
 #include <QLineEdit>
+#include <QTextEdit>
 #include <QComboBox>
 #include <QPushButton>
 #include "../models/Session.hpp"
@@ -21,7 +22,7 @@ private:
     QLineEdit* amountInput;
     QComboBox* categoryComboBox;
     QLineEdit* titleInput;
-    QLineEdit* descriptionInput;
+    QTextEdit* descriptionInput;
     QPushButton* addTransactionButton;
     QComboBox* transactionTypeComboBox;
 
