@@ -63,7 +63,9 @@ All services depend on repository **interfaces**, not concrete implementations. 
 
 ---
 
-## UML
+## UML (CLI app version)
+
+The following diagram is designed for CLI App version. The GUI with Qt is slightly different. `CLIApp` -> Windows.
 
 ```mermaid
 classDiagram
