@@ -25,8 +25,8 @@ MainWindow::MainWindow(const Session& activeSession,
 
 void MainWindow::setupUi() {
     setWindowTitle(QString("My Budget — %1").arg(QString::fromStdString(session.getUsername())));
-    resize(900, 560);
-    setMinimumSize(700, 420);
+    resize(900, 800);
+    setMinimumSize(900, 700);
 
     // ── Global palette ──────────────────────────────────────────────────────
     setStyleSheet(R"(
@@ -157,6 +157,52 @@ void MainWindow::setupUi() {
         QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
             height: 0;
         }
+        QPushButton#userMenuBtn {
+            font-family: "Inter", "Segoe UI", sans-serif;
+            font-size: 13px;
+            font-weight: 900;
+            color: #374151;
+            background-color: transparent;
+            border: 1px solid #E5E8EF;
+            border-radius: 8px;
+            padding: 9px 12px;
+            text-align: left;
+        }
+        QPushButton#userMenuBtn:hover {
+            background-color: #F0F2F5;
+        }
+
+        QWidget#userPopup {
+            background-color: #FFFFFF;
+            border: 1px solid #E5E8EF;
+            border-radius: 10px;
+        }
+        QPushButton#popupItem {
+            font-family: "Inter", "Segoe UI", sans-serif;
+            font-size: 13px;
+            color: #374151;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            padding: 9px 14px;
+            text-align: left;
+        }
+        QPushButton#popupItem:hover {
+            background-color: #F0F2F5;
+        }
+        QPushButton#popupItemDanger {
+            font-family: "Inter", "Segoe UI", sans-serif;
+            font-size: 13px;
+            color: #EF4444;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            padding: 9px 14px;
+            text-align: left;
+        }
+        QPushButton#popupItemDanger:hover {
+            background-color: #FEF2F2;
+        }
     )");
 
     QWidget* centralWidget = new QWidget(this);
@@ -217,7 +263,7 @@ void MainWindow::setupUi() {
     addTransactionButton->setObjectName("addBtn");
     addTransactionButton->setCursor(Qt::PointingHandCursor);
     leftLayout->addWidget(addTransactionButton);
-    leftLayout->addStretch();
+
 
     // ================= RIGHT PANEL (table) =================
     QVBoxLayout* rightLayout = new QVBoxLayout();
@@ -241,7 +287,23 @@ void MainWindow::setupUi() {
     transactionTable->setFrameShape(QFrame::NoFrame);
     rightLayout->addWidget(transactionTable);
 
-    mainLayout->addWidget(leftCard, 1);
+    QVBoxLayout* leftColumnLayout = new QVBoxLayout();
+    leftColumnLayout->setContentsMargins(0, 0, 0, 0);
+    leftColumnLayout->setSpacing(8);
+
+    leftColumnLayout->addWidget(leftCard, 1);  // karta rośnie
+
+    userMenuButton = new QPushButton(this);
+    userMenuButton->setObjectName("userMenuBtn");
+    userMenuButton->setText(QString("  %1").arg(QString::fromStdString(session.getUsername())));
+    userMenuButton->setCursor(Qt::PointingHandCursor);
+    userMenuButton->setFixedHeight(44);
+    leftColumnLayout->addWidget(userMenuButton, 0);  // przycisk ma stały rozmiar
+
+    connect(userMenuButton, &QPushButton::clicked, this, &MainWindow::toggleUserMenu);
+    setupUserMenu();
+
+    mainLayout->addLayout(leftColumnLayout, 1);  // zamiast addWidget(leftCard, 1)
     mainLayout->addLayout(rightLayout, 2);
 }
 
@@ -311,4 +373,66 @@ void MainWindow::handleAddTransaction() {
     } else {
         QMessageBox::warning(this, "Error", "Failed to add transaction. Please check the amount.");
     }
+}
+
+void MainWindow::setupUserMenu() {
+    // Popup jest dzieckiem głównego okna (nie leftCard),
+    // żeby mógł "wychodzić" poza kartę
+    userPopupMenu = new QWidget(this);
+    userPopupMenu->setObjectName("userPopup");
+    userPopupMenu->setWindowFlags(Qt::Popup);  // ← zamknięcie po kliknięciu poza
+    userPopupMenu->hide();
+
+    QVBoxLayout* popupLayout = new QVBoxLayout(userPopupMenu);
+    popupLayout->setContentsMargins(6, 6, 6, 6);
+    popupLayout->setSpacing(2);
+
+    auto makeItem = [&](const QString& label, const QString& objName) {
+        QPushButton* btn = new QPushButton(label, userPopupMenu);
+        btn->setObjectName(objName);
+        btn->setCursor(Qt::PointingHandCursor);
+        btn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        return btn;
+    };
+
+    QPushButton* profileBtn  = makeItem("👤  Profile",  "popupItem");
+    QPushButton* settingsBtn = makeItem("⚙️  Settings", "popupItem");
+    QPushButton* logoutBtn   = makeItem("→  Log out",  "popupItemDanger");
+
+    profileBtn->setEnabled(false);   // TODO: przyszłość
+    settingsBtn->setEnabled(false);  // TODO: przyszłość
+
+    popupLayout->addWidget(profileBtn);
+    popupLayout->addWidget(settingsBtn);
+
+    // Cienki separator przed logout
+    QFrame* sep = new QFrame(userPopupMenu);
+    sep->setFrameShape(QFrame::HLine);
+    sep->setStyleSheet("color: #E5E8EF; margin: 2px 0;");
+    popupLayout->addWidget(sep);
+
+    popupLayout->addWidget(logoutBtn);
+    userPopupMenu->adjustSize();
+
+    connect(logoutBtn, &QPushButton::clicked, this, &MainWindow::handleLogout);
+}
+
+void MainWindow::toggleUserMenu() {
+    if (userPopupMenu->isVisible()) {
+        userPopupMenu->hide();
+        return;
+    }
+
+    // Pozycja: nad przyciskiem, wyrównana do lewej
+    QPoint globalPos = userMenuButton->mapToGlobal(QPoint(0, 0));
+    userPopupMenu->adjustSize();
+    int popupY = globalPos.y() - userPopupMenu->height() - 4;
+    userPopupMenu->move(globalPos.x(), popupY);
+    userPopupMenu->show();
+    userPopupMenu->raise();
+}
+
+void MainWindow::handleLogout() {
+    userPopupMenu->hide();
+    emit logoutRequested();
 }

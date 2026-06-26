@@ -26,6 +26,10 @@ private:
     QPushButton* addTransactionButton;
     QComboBox* transactionTypeComboBox;
 
+    QPushButton* userMenuButton;
+    QWidget*     userPopupMenu;
+    void         setupUserMenu();
+
     void setupUi();
     void loadCategories();
     void loadTransactionTypes();
@@ -33,10 +37,15 @@ private:
 
 private slots:
     void handleAddTransaction();
+    void toggleUserMenu();
+    void handleLogout();
 
 public:
     MainWindow(const Session& activeSession, 
                TransactionService& tService, 
                CategoryService& cService, 
                QWidget* parent = nullptr);
+
+signals:
+    void logoutRequested();
 };

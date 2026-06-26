@@ -2,7 +2,7 @@
 #include "include/database/DatabaseManager.hpp"
 #include "include/repositories/SqliteUserRepository.hpp"
 #include "include/repositories/SqliteCategoryRepository.hpp"
-#include "include/repositories/SqliteTransactionRepository.hpp" // Nowy nagłówek
+#include "include/repositories/SqliteTransactionRepository.hpp"
 #include "include/validators/UserValidator.hpp"
 #include "include/services/AuthService.hpp"
 #include "include/services/CategoryService.hpp"
@@ -14,42 +14,55 @@
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
-    // 1. Inicjalizacja bazy
     if (!DatabaseManager::getInstance().init("budget.db")) {
-        QMessageBox::critical(nullptr, "Blad krytyczny", "Nie udalo sie zainicjalizowac bazy danych!");
+        QMessageBox::critical(nullptr, "Error", "Failed to initialize database!");
         return -1;
     }
 
-    // 2. Warstwa danych — WSZYSTKO NA SQLITE!
-    SqliteUserRepository        userRepo; 
+    SqliteUserRepository        userRepo;
     SqliteCategoryRepository    categoryRepo;
-    SqliteTransactionRepository transactionRepo; // Zmiana!
+    SqliteTransactionRepository transactionRepo;
     UserValidator               userValidator;
 
-    // 3. Warstwa biznesowa
-    AuthService         authService(userRepo, userValidator);
-    CategoryService     categoryService(categoryRepo);
-    TransactionService  transactionService(transactionRepo, categoryRepo);
+    AuthService        authService(userRepo, userValidator);
+    CategoryService    categoryService(categoryRepo);
+    TransactionService transactionService(transactionRepo, categoryRepo);
 
     categoryService.initializeDefaultCategories();
 
-    // 4. GUI
-    LoginWindow loginWindow(authService);
-    loginWindow.show();
+    LoginWindow* loginWindow = new LoginWindow(authService);
+    MainWindow*  mainWindow  = nullptr;
 
-    MainWindow* mainWindow = nullptr;
+    auto showLogin = [&]() {
+        DatabaseManager::getInstance().clearLastUser();
+        if (mainWindow) { mainWindow->hide(); }
+        loginWindow->show();
+    };
 
-    QObject::connect(&loginWindow, &LoginWindow::loginSuccessful, [&](const Session& session) {
-        loginWindow.close();
+    auto showMain = [&](const Session& session) {
+        DatabaseManager::getInstance().saveLastUser(session.getUserId());
+        loginWindow->hide();
         mainWindow = new MainWindow(session, transactionService, categoryService);
+        QObject::connect(mainWindow, &MainWindow::logoutRequested, showLogin);
         mainWindow->show();
-    });
+    };
 
-    int result = a.exec();
+    QObject::connect(loginWindow, &LoginWindow::loginSuccessful, showMain);
 
-    if (mainWindow) {
-        delete mainWindow;
+    int lastUserId = DatabaseManager::getInstance().loadLastUserId();
+    if (lastUserId != -1) {
+        auto userOpt = userRepo.getById(lastUserId);
+        if (userOpt.has_value()) {
+            showMain(Session(userOpt->getId(), userOpt->getLogin()));
+        } else {
+            loginWindow->show();
+        }
+    } else {
+        loginWindow->show();
     }
 
+    int result = a.exec();
+    delete mainWindow;
+    delete loginWindow;
     return result;
 }

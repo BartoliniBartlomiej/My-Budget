@@ -19,4 +19,8 @@ public:
     
     QSqlDatabase getDatabase() const;
     ~DatabaseManager();
+
+    void     saveLastUser(int userId);
+    int      loadLastUserId();
+    void     clearLastUser();
 };

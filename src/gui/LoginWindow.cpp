@@ -53,8 +53,11 @@ void LoginWindow::handleLogin() {
     if (sessionOpt.has_value()) {
         statusLabel->setText("");
         emit loginSuccessful(sessionOpt.value());
+        loginInput->clear();
+        passwordInput->clear();
     } else {
         statusLabel->setText("Incorrect login or/and password!");
+        passwordInput->clear();
     }
 }
 

@@ -25,7 +25,7 @@ bool DatabaseManager::init(const QString& dbName) {
     db.setDatabaseName(dbName);
 
     if (!db.open()) {
-        qDebug() << "Blad otwarcia bazy danych:" << db.lastError().text();
+        qDebug() << "Initialisation error:" << db.lastError().text();
         return false;
     }
 
@@ -73,8 +73,15 @@ bool DatabaseManager::createTables() {
         ");"
     );
 
-    if (!uOk || !cOk || !tOk) {
-        qDebug() << "Blad podczas tworzenia tabel:" << query.lastError().text();
+    bool sOk = query.exec(
+        "CREATE TABLE IF NOT EXISTS app_settings ("
+        "key TEXT PRIMARY KEY, "
+        "value TEXT NOT NULL"
+        ");"
+    );
+
+    if (!uOk || !cOk || !tOk || !sOk) {
+        qDebug() << "Error while creating tables:" << query.lastError().text();
         return false;
     }
 
@@ -83,4 +90,27 @@ bool DatabaseManager::createTables() {
 
 QSqlDatabase DatabaseManager::getDatabase() const {
     return db;
+}
+
+void DatabaseManager::saveLastUser(int userId) {
+    QSqlQuery q;
+    q.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('last_user_id', :val)");
+    q.bindValue(":val", userId);
+    q.exec();
+}
+
+int DatabaseManager::loadLastUserId() {
+    QSqlQuery q;
+    q.prepare("SELECT value FROM app_settings WHERE key = 'last_user_id'");
+    if (q.exec() && q.next()) {
+        bool ok;
+        int id = q.value(0).toInt(&ok);
+        return ok ? id : -1;
+    }
+    return -1;
+}
+
+void DatabaseManager::clearLastUser() {
+    QSqlQuery q;
+    q.exec("DELETE FROM app_settings WHERE key = 'last_user_id'");
 }
