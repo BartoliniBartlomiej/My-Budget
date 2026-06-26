@@ -20,7 +20,7 @@ bool TransactionService::addTransaction(double amount, int categoryId, const std
     }
 
     Transaction transaction(amount, categoryId, date, description, session.getUserId(), recurrence);
-    transactionRepository.add(transaction);
+    transactionRepository.add(transaction, session.getUserId());
     return true;
 }
 
@@ -44,7 +44,7 @@ bool TransactionService::addTransaction(double amount, int categoryId, const std
     }
 
     Transaction transaction(amount, categoryId, categoryOpt->getType(), date, title, session.getUserId(), recurrence, type, description);
-    transactionRepository.add(transaction);
+    transactionRepository.add(transaction, session.getUserId());
     return true;
 }
 
