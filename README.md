@@ -16,6 +16,8 @@
 
 The project follows a layered architecture with strict separation of concerns across models, services, repositories, and validators. The repository abstraction layer is designed to make swapping the in-memory storage for a full SQL database a straightforward step, which is the next major milestone on the roadmap.
 
+![alt text](mainWindow.png)
+
 ---
 
 ## Features
@@ -43,6 +45,10 @@ The project follows a layered architecture with strict separation of concerns ac
 - Transaction history table with real-time refresh
 - CLI interface available as an alternative entry point
 
+### Database
+- SQLite database (Repositories: [Category](src/repositories/SqliteCategoryRepository.cpp), [Transaction](src/repositories/SqliteTransactionRepository.cpp), [User](src/repositories/SqliteUserRepository.cpp))
+
+
 ---
 
 ## Architecture
@@ -52,20 +58,22 @@ The project is organized into clearly separated layers:
 ```
 include / src
 ├── models/          — Domain entities: User, Transaction, Category, Budget, Session
-├── repositories/    — Interfaces (IUserRepository, etc.) + InMemory implementations
+├── repositories/    — Interfaces (IUserRepository, etc.) + InMemory and SQLite implementations
 ├── services/        — Business logic: AuthService, CategoryService, TransactionService
 ├── validators/      — Input validation: UserValidator
 ├── cli/             — Command-line interface: CLIApp, InputHelper
 └── gui/             — Qt6 GUI: LoginWindow, MainWindow
 ```
 
-All services depend on repository **interfaces**, not concrete implementations. This means the storage layer can be replaced (e.g., with SQLite or PostgreSQL) without touching any service or model code.
+All services depend on repository **interfaces**, not concrete implementations. This means the storage layer can be replaced (e.g., with SQLite, PostgreSQL or in-memory) without touching any service or model code.
 
 ---
 
 ## UML (CLI app version)
 
-The following diagram is designed for CLI App version. The GUI with Qt is slightly different. `CLIApp` -> Windows.
+The following diagram is designed for CLI App version. The GUI with Qt is slightly different.
+- other implementations of Interfaces ([src/repositories](src/repositories))
+- [CLIApp](src/cli/CLIApp.cpp) --> [GUI](src/gui)
 
 ```mermaid
 classDiagram
@@ -515,6 +523,7 @@ classDiagram
 | C++17 | Core language |
 | CMake 3.16+ | Build system |
 | Qt 6 | GUI framework |
+| SQLite | Database
 | GoogleTest | Unit testing |
 | GitHub Actions | CI/CD |
 
