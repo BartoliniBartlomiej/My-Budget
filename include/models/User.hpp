@@ -47,7 +47,7 @@ public:
             std::cout << "Transaction ID: " << transaction.getId() << std::endl;
             std::cout << "User ID: " << transaction.getUserId() << std::endl;
             std::cout << "Category ID: " << transaction.getCategoryId() << std::endl;
-            std::cout << "Type: " << static_cast<int>(transaction.getType()) << std::endl;
+            std::cout << "Type: " << static_cast<int>(transaction.getCategoryType()) << std::endl;
             std::cout << "Amount: " << transaction.getAmount() << std::endl;
             std::cout << "Title: " << transaction.getTitle() << std::endl;
             std::cout << "Description: " << transaction.getDescription() << std::endl;

@@ -7,15 +7,18 @@
 void SqliteTransactionRepository::add(const Transaction& transaction, int userId) {
     QSqlQuery query;
     query.prepare(
-        "INSERT INTO transactions (amount, category_id, date, description, user_id) "
-        "VALUES (:amount, :category_id, :date, :description, :user_id)"
+        "INSERT INTO transactions (amount, category_id, date, title, description, type, user_id) "
+        "VALUES (:amount, :category_id, :date, :title, :description, :type, :user_id)"
     );
-    query.bindValue(":amount", transaction.getAmount());
-    query.bindValue(":category_id", transaction.getCategoryId());
-    query.bindValue(":date", QString::fromStdString(transaction.getDate()));
-
-    query.bindValue(":description", QString::fromStdString(transaction.getDescription()));
-    query.bindValue(":user_id", userId);
+    query.bindValue(":amount",       transaction.getAmount());
+    query.bindValue(":category_id",  transaction.getCategoryId());
+    query.bindValue(":date",         QString::fromStdString(transaction.getDate()));
+    query.bindValue(":title",        QString::fromStdString(transaction.getTitle()));
+    query.bindValue(":description",  QString::fromStdString(transaction.getDescription()));
+    query.bindValue(":type",         QString::fromStdString(
+                                        transaction.getTransactionType() == TransactionType::INCOME
+                                        ? "INCOME" : "EXPENSE"));
+    query.bindValue(":user_id",      userId);
 
     if (!query.exec()) {
         qDebug() << "Error while adding transaction to SQL:" << query.lastError().text();
@@ -27,30 +30,35 @@ std::vector<Transaction> SqliteTransactionRepository::getByUserId(int userId) co
     QSqlQuery query;
 
     query.prepare(
-        "SELECT id, amount, category_id, date, description "
+        "SELECT id, amount, category_id, date, title, description, type "
         "FROM transactions WHERE user_id = :user_id ORDER BY date DESC"
     );
+
     query.bindValue(":user_id", userId);
 
     if (query.exec()) {
         while (query.next()) {
-            double amount = query.value(1).toDouble();
-            int categoryId = query.value(2).toInt();
-            std::string date = query.value(3).toString().toStdString();
-            std::string description = query.value(4).toString().toStdString();
+            double      amount      = query.value(1).toDouble();
+            int         categoryId  = query.value(2).toInt();
+            std::string date        = query.value(3).toString().toStdString();
+            std::string title       = query.value(4).toString().toStdString();
+            std::string description = query.value(5).toString().toStdString();
+            std::string typeStr     = query.value(6).toString().toStdString();
+            TransactionType txType  = (typeStr == "INCOME")
+                                    ? TransactionType::INCOME
+                                    : TransactionType::EXPENSE;
 
             Transaction t(
-                amount,                          // _amount
-                categoryId,                      // _categoryId
-                CategoryType::OTHER,             // _categoryType
-                date,                            // _date
-                description,                     // _title (używamy opisu jako tytułu)
-                userId,                          // _userId
-                RecurrenceInterval::NONE,        // _recurrence
-                TransactionType::EXPENSE,        // _type (zakładamy domyślnie wydatek)
-                description                      // _description
+                amount,
+                categoryId,
+                CategoryType::OTHER,
+                date,
+                title,
+                userId,
+                RecurrenceInterval::NONE,
+                txType,
+                description
             );
-            
             t.setId(query.value(0).toInt());
             result.push_back(t);
         }
