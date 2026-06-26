@@ -203,6 +203,35 @@ void MainWindow::setupUi() {
         QPushButton#popupItemDanger:hover {
             background-color: #FEF2F2;
         }
+        QWidget#budgetCard {
+            background-color: #FFFFFF;
+            border: 1px solid #E5E8EF;
+            border-radius: 12px;
+        }
+        QLabel#budgetBlockLabel {
+            font-family: "Inter", "Segoe UI", sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            color: #9CA3AF;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        QLabel#budgetBlockValue {
+            font-family: "Inter", "Segoe UI", sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: #374151;
+        }
+        QLabel#budgetBlockValueMain {
+            font-family: "Inter", "Segoe UI", sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: #374151;
+        }
+        QFrame#budgetSep {
+            color: #E5E8EF;
+            max-height: 32px;
+        }
     )");
 
     QWidget* centralWidget = new QWidget(this);
@@ -270,9 +299,9 @@ void MainWindow::setupUi() {
     rightLayout->setSpacing(10);
     rightLayout->setContentsMargins(0, 0, 0, 0);
 
-    QLabel* tableTitle = new QLabel("Transaction History", this);
-    tableTitle->setObjectName("sectionTitle");
-    rightLayout->addWidget(tableTitle);
+    // QLabel* tableTitle = new QLabel("Transaction History", this);
+    // tableTitle->setObjectName("sectionTitle");
+    // rightLayout->addWidget(tableTitle);
 
     transactionTable = new QTableWidget(this);
     transactionTable->setColumnCount(4);
@@ -291,20 +320,29 @@ void MainWindow::setupUi() {
     leftColumnLayout->setContentsMargins(0, 0, 0, 0);
     leftColumnLayout->setSpacing(8);
 
-    leftColumnLayout->addWidget(leftCard, 1);  // karta rośnie
+    leftColumnLayout->addWidget(leftCard, 1);
 
     userMenuButton = new QPushButton(this);
     userMenuButton->setObjectName("userMenuBtn");
     userMenuButton->setText(QString("  %1").arg(QString::fromStdString(session.getUsername())));
     userMenuButton->setCursor(Qt::PointingHandCursor);
     userMenuButton->setFixedHeight(44);
-    leftColumnLayout->addWidget(userMenuButton, 0);  // przycisk ma stały rozmiar
+    leftColumnLayout->addWidget(userMenuButton, 0);
 
     connect(userMenuButton, &QPushButton::clicked, this, &MainWindow::toggleUserMenu);
     setupUserMenu();
 
-    mainLayout->addLayout(leftColumnLayout, 1);  // zamiast addWidget(leftCard, 1)
-    mainLayout->addLayout(rightLayout, 2);
+    mainLayout->addLayout(leftColumnLayout, 1);
+    
+    rightColumnLayout = new QVBoxLayout();
+    rightColumnLayout->setContentsMargins(0, 0, 0, 0);
+    rightColumnLayout->setSpacing(8);
+
+    setupBudgetSummary();
+
+    rightColumnLayout->addWidget(transactionTable, 1);
+
+    mainLayout->addLayout(rightColumnLayout, 2);
 }
 
 void MainWindow::loadCategories() {
@@ -367,6 +405,7 @@ void MainWindow::handleAddTransaction() {
 
     if (transactionService.addTransaction(amount, catId, currentDate, title, RecurrenceInterval::NONE, session, type, description)) {
         refreshTransactionHistory();
+        refreshBudgetSummary();
         amountInput->clear();
         titleInput->clear();
         descriptionInput->clear();
@@ -376,11 +415,9 @@ void MainWindow::handleAddTransaction() {
 }
 
 void MainWindow::setupUserMenu() {
-    // Popup jest dzieckiem głównego okna (nie leftCard),
-    // żeby mógł "wychodzić" poza kartę
     userPopupMenu = new QWidget(this);
     userPopupMenu->setObjectName("userPopup");
-    userPopupMenu->setWindowFlags(Qt::Popup);  // ← zamknięcie po kliknięciu poza
+    userPopupMenu->setWindowFlags(Qt::Popup);
     userPopupMenu->hide();
 
     QVBoxLayout* popupLayout = new QVBoxLayout(userPopupMenu);
@@ -395,17 +432,16 @@ void MainWindow::setupUserMenu() {
         return btn;
     };
 
-    QPushButton* profileBtn  = makeItem("👤  Profile",  "popupItem");
-    QPushButton* settingsBtn = makeItem("⚙️  Settings", "popupItem");
+    QPushButton* profileBtn  = makeItem("Profile",  "popupItem");
+    QPushButton* settingsBtn = makeItem("Settings", "popupItem");
     QPushButton* logoutBtn   = makeItem("→  Log out",  "popupItemDanger");
 
-    profileBtn->setEnabled(false);   // TODO: przyszłość
-    settingsBtn->setEnabled(false);  // TODO: przyszłość
+    profileBtn->setEnabled(false);   // TODO: profileWindow
+    settingsBtn->setEnabled(false);  // TODO: settingsWindow
 
     popupLayout->addWidget(profileBtn);
     popupLayout->addWidget(settingsBtn);
 
-    // Cienki separator przed logout
     QFrame* sep = new QFrame(userPopupMenu);
     sep->setFrameShape(QFrame::HLine);
     sep->setStyleSheet("color: #E5E8EF; margin: 2px 0;");
@@ -423,7 +459,6 @@ void MainWindow::toggleUserMenu() {
         return;
     }
 
-    // Pozycja: nad przyciskiem, wyrównana do lewej
     QPoint globalPos = userMenuButton->mapToGlobal(QPoint(0, 0));
     userPopupMenu->adjustSize();
     int popupY = globalPos.y() - userPopupMenu->height() - 4;
@@ -435,4 +470,85 @@ void MainWindow::toggleUserMenu() {
 void MainWindow::handleLogout() {
     userPopupMenu->hide();
     emit logoutRequested();
+}
+
+void MainWindow::setupBudgetSummary() {
+    QWidget* budgetCard = new QWidget(this);
+    budgetCard->setObjectName("budgetCard");
+
+    QHBoxLayout* cardLayout = new QHBoxLayout(budgetCard);
+    cardLayout->setContentsMargins(20, 14, 20, 14);
+    cardLayout->setSpacing(0);
+
+    // --- BALANCE  ---
+    auto makeBlock = [&](const QString& topLabel) {
+        QVBoxLayout* block = new QVBoxLayout();
+        block->setSpacing(2);
+        QLabel* lbl = new QLabel(topLabel);
+        lbl->setObjectName("budgetBlockLabel");
+        QLabel* val = new QLabel("0.00 PLN");
+        val->setObjectName("budgetBlockValue");
+        block->addWidget(lbl);
+        block->addWidget(val);
+        return qMakePair(block, val);
+    };
+
+    auto [incomeBlock,  incLbl] = makeBlock("Income");
+    auto [balanceBlock, balLbl] = makeBlock("Balance");
+    auto [expenseBlock, expLbl] = makeBlock("Expenses");
+
+    incomeLabel  = incLbl;
+    balanceLabel = balLbl;
+    expenseLabel = expLbl;
+
+    balLbl->setObjectName("budgetBlockValueMain");
+    auto makeSep = [&]() {
+        QFrame* sep = new QFrame();
+        sep->setFrameShape(QFrame::VLine);
+        sep->setObjectName("budgetSep");
+        return sep;
+    };
+
+    cardLayout->addLayout(incomeBlock);
+    cardLayout->addStretch();
+    cardLayout->addWidget(makeSep());
+    cardLayout->addStretch();
+    cardLayout->addLayout(balanceBlock);
+    cardLayout->addStretch();
+    cardLayout->addWidget(makeSep());
+    cardLayout->addStretch();
+    cardLayout->addLayout(expenseBlock);
+
+    rightColumnLayout->insertWidget(0, budgetCard);
+
+    refreshBudgetSummary();
+}
+
+void MainWindow::refreshBudgetSummary() {
+    auto transactions = transactionService.getTransactionHistory(session);
+
+    double income  = 0.0;
+    double expense = 0.0;
+
+    for (const auto& t : transactions) {
+        if (t.getTransactionType() == TransactionType::INCOME)
+            income  += t.getAmount();
+        else
+            expense += t.getAmount();
+    }
+
+    double balance = income - expense;
+
+    auto fmt = [](double v) {
+        return QString("%1%2 PLN")
+            .arg(v < 0 ? "-" : "")
+            .arg(std::abs(v), 0, 'f', 2);
+    };
+
+    incomeLabel ->setText(fmt(income));
+    expenseLabel->setText(fmt(expense));
+    balanceLabel->setText(fmt(balance));
+
+    QString balColor = balance >= 0 ? "#16A34A" : "#EF4444";
+    balanceLabel->setStyleSheet(QString("color: %1;").arg(balColor));
 }

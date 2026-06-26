@@ -6,6 +6,8 @@
 #include <QTextEdit>
 #include <QComboBox>
 #include <QPushButton>
+#include <QLabel>
+#include <QVBoxLayout>
 #include "../models/Session.hpp"
 #include "../services/TransactionService.hpp"
 #include "../services/CategoryService.hpp"
@@ -30,10 +32,18 @@ private:
     QWidget*     userPopupMenu;
     void         setupUserMenu();
 
+    QLabel* balanceLabel;
+    QLabel* incomeLabel;
+    QLabel* expenseLabel;
+    QVBoxLayout* rightColumnLayout;
+
     void setupUi();
     void loadCategories();
     void loadTransactionTypes();
     void refreshTransactionHistory();
+
+    void setupBudgetSummary();
+    void refreshBudgetSummary();
 
 private slots:
     void handleAddTransaction();
