@@ -17,7 +17,7 @@
 
 The project follows a layered architecture with strict separation of concerns across models, services, repositories, and validators. The repository abstraction layer is designed to make swapping the in-memory storage for a full SQL database a straightforward step, which is the next major milestone on the roadmap.
 
-![alt text](mainWindow.png)
+![alt text](assets/mainWindow.png)
 
 ---
 
