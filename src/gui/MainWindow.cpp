@@ -543,7 +543,7 @@ void MainWindow::refreshBudgetSummary() {
         return QString("%1%2 %3")
             .arg(v < 0 ? "-" : "")
             .arg(std::abs(v), 0, 'f', 2)
-            .arg(session.getCurrencyString());
+            .arg(QString::fromStdString(session.getCurrencyString()));
     };
 
     incomeLabel ->setText(fmt(income));
