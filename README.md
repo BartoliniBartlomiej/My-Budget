@@ -5,6 +5,7 @@
 ![C++17](https://img.shields.io/badge/C%2B%2B-17-blue?logo=cplusplus)
 ![CMake](https://img.shields.io/badge/CMake-3.16%2B-green?logo=cmake)
 ![Qt6](https://img.shields.io/badge/Qt-6-41CD52?logo=qt)
+![SQLite](https://img.shields.io/badge/SQLite-4169E1?logo=sqlite)
 ![License](https://img.shields.io/badge/license-MIT-lightgrey)
 ![Tests](https://img.shields.io/badge/tests-GoogleTest-orange)
 
