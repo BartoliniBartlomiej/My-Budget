@@ -268,7 +268,11 @@ void MainWindow::setupUi() {
 
     amountInput = new QLineEdit(leftCard);
     amountInput->setPlaceholderText("0.00");
-    formLayout->addRow("Amount (PLN)", amountInput);
+    formLayout->addRow(
+        QString("Amount (%1)").arg(QString::fromStdString(session.getCurrencyString())),
+        amountInput
+    );
+
 
     categoryComboBox = new QComboBox(leftCard);
     formLayout->addRow("Category", categoryComboBox);
@@ -298,10 +302,6 @@ void MainWindow::setupUi() {
     QVBoxLayout* rightLayout = new QVBoxLayout();
     rightLayout->setSpacing(10);
     rightLayout->setContentsMargins(0, 0, 0, 0);
-
-    // QLabel* tableTitle = new QLabel("Transaction History", this);
-    // tableTitle->setObjectName("sectionTitle");
-    // rightLayout->addWidget(tableTitle);
 
     transactionTable = new QTableWidget(this);
     transactionTable->setColumnCount(4);
@@ -388,7 +388,7 @@ void MainWindow::refreshTransactionHistory() {
         }
 
         transactionTable->setItem(i, 0, new QTableWidgetItem(QString::fromStdString(history[i].getDate())));
-        transactionTable->setItem(i, 1, new QTableWidgetItem(QString::number(history[i].getAmount(), 'f', 2) + " PLN"));
+        transactionTable->setItem(i, 1, new QTableWidgetItem(QString::number(history[i].getAmount(), 'f', 2) + " " + QString::fromStdString(session.getCurrencyString())));
         transactionTable->setItem(i, 2, new QTableWidgetItem(catName));
         transactionTable->setItem(i, 3, new QTableWidgetItem(QString::fromStdString(history[i].getTitle())));
     }
@@ -486,7 +486,7 @@ void MainWindow::setupBudgetSummary() {
         block->setSpacing(2);
         QLabel* lbl = new QLabel(topLabel);
         lbl->setObjectName("budgetBlockLabel");
-        QLabel* val = new QLabel("0.00 PLN");
+        QLabel* val = new QLabel(QString("0.00 %1").arg(QString::fromStdString(session.getCurrencyString())));
         val->setObjectName("budgetBlockValue");
         block->addWidget(lbl);
         block->addWidget(val);
@@ -539,10 +539,11 @@ void MainWindow::refreshBudgetSummary() {
 
     double balance = income - expense;
 
-    auto fmt = [](double v) {
-        return QString("%1%2 PLN")
+    auto fmt = [&](double v) {
+        return QString("%1%2 %3")
             .arg(v < 0 ? "-" : "")
-            .arg(std::abs(v), 0, 'f', 2);
+            .arg(std::abs(v), 0, 'f', 2)
+            .arg(session.getCurrencyString());
     };
 
     incomeLabel ->setText(fmt(income));
