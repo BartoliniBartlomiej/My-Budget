@@ -1,4 +1,5 @@
 #include "../../include/gui/MainWindow.hpp"
+#include "../../include/gui/SettingsWindow.hpp"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QFormLayout>
@@ -268,10 +269,8 @@ void MainWindow::setupUi() {
 
     amountInput = new QLineEdit(leftCard);
     amountInput->setPlaceholderText("0.00");
-    formLayout->addRow(
-        QString("Amount (%1)").arg(QString::fromStdString(session.getCurrencyString())),
-        amountInput
-    );
+    amountLabel = new QLabel(QString("Amount (%1)").arg(QString::fromStdString(session.getCurrencyString())), this);
+    formLayout->addRow(amountLabel, amountInput);
 
 
     categoryComboBox = new QComboBox(leftCard);
@@ -437,7 +436,7 @@ void MainWindow::setupUserMenu() {
     QPushButton* logoutBtn   = makeItem("→  Log out",  "popupItemDanger");
 
     profileBtn->setEnabled(false);   // TODO: profileWindow
-    settingsBtn->setEnabled(false);  // TODO: settingsWindow
+    settingsBtn->setEnabled(true);  // TODO: settingsWindow
 
     popupLayout->addWidget(profileBtn);
     popupLayout->addWidget(settingsBtn);
@@ -451,6 +450,7 @@ void MainWindow::setupUserMenu() {
     userPopupMenu->adjustSize();
 
     connect(logoutBtn, &QPushButton::clicked, this, &MainWindow::handleLogout);
+    connect(settingsBtn, &QPushButton::clicked, this, &MainWindow::handleOpenSettings);
 }
 
 void MainWindow::toggleUserMenu() {
@@ -552,4 +552,16 @@ void MainWindow::refreshBudgetSummary() {
 
     QString balColor = balance >= 0 ? "#16A34A" : "#EF4444";
     balanceLabel->setStyleSheet(QString("color: %1;").arg(balColor));
+}
+
+void MainWindow::handleOpenSettings() {
+    userPopupMenu->hide();
+
+    SettingsWindow settingsWin(session, this);
+    if (settingsWin.exec() == QDialog::Accepted) {
+        amountLabel->setText(QString("Amount (%1)").arg(QString::fromStdString(session.getCurrencyString())));
+
+        refreshBudgetSummary();
+        refreshTransactionHistory();
+    }
 }

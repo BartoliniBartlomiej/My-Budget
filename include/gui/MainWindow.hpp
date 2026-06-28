@@ -37,6 +37,8 @@ private:
     QLabel* expenseLabel;
     QVBoxLayout* rightColumnLayout;
 
+    QLabel* amountLabel;
+
     void setupUi();
     void loadCategories();
     void loadTransactionTypes();
@@ -49,6 +51,7 @@ private slots:
     void handleAddTransaction();
     void toggleUserMenu();
     void handleLogout();
+    void handleOpenSettings();
 
 public:
     MainWindow(const Session& activeSession, 
