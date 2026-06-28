@@ -22,3 +22,10 @@ enum CategoryType {
     SALARY,
     OTHER
 };
+
+enum Currency {
+    PLN,
+    USD,
+    EUR,
+    GBP
+};
