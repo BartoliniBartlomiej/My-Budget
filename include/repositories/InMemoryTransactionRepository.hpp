@@ -8,7 +8,7 @@ private:
     int nextId = 1;
 
 public:
-    void add(const Transaction& transaction) override;
+    void add(const Transaction& transaction, int userId) override;
     std::vector<Transaction> getByUserId(int userId) const override;
     bool removeById(int id) override;
 };

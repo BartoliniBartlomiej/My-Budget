@@ -20,7 +20,31 @@ bool TransactionService::addTransaction(double amount, int categoryId, const std
     }
 
     Transaction transaction(amount, categoryId, date, description, session.getUserId(), recurrence);
-    transactionRepository.add(transaction);
+    transactionRepository.add(transaction, session.getUserId());
+    return true;
+}
+
+bool TransactionService::addTransaction(double amount, int categoryId, const std::string& date, 
+                                        const std::string& title, RecurrenceInterval recurrence, 
+                                        const Session& session, const TransactionType type, const std::string& description) {
+    if (!session.isLoggedIn()) {
+        return false;
+    }
+    if (amount <= 0.0) {
+        return false;
+    }
+
+    auto categoryOpt = categoryRepository.getById(categoryId);
+    if (!categoryOpt.has_value()) {
+        return false;
+    }
+
+    if (categoryOpt->getUserId() != 0 && categoryOpt->getUserId() != session.getUserId()) {
+        return false;
+    }
+
+    Transaction transaction(amount, categoryId, categoryOpt->getType(), date, title, session.getUserId(), recurrence, type, description);
+    transactionRepository.add(transaction, session.getUserId());
     return true;
 }
 

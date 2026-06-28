@@ -5,6 +5,8 @@ on:
     branches:
       - main
       - develop
+      - GUI
+      - GUISQL
   pull_request:
 
 jobs:
@@ -19,6 +21,11 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -y cmake g++ ninja-build
+        
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: 6.8.0
 
     - name: Configure
       run: cmake -B build -G Ninja

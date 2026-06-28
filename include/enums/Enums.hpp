@@ -9,6 +9,7 @@ enum RecurrenceInterval {
     NONE,
     DAILY,
     WEEKLY,
+    MONTHLY,
     YEARLY
 };
 

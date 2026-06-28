@@ -1,6 +1,6 @@
 #include "../../include/repositories/InMemoryTransactionRepository.hpp"
 
-void InMemoryTransactionRepository::add(const Transaction& transaction) {
+void InMemoryTransactionRepository::add(const Transaction& transaction, int userId) {
     Transaction newTransaction = transaction;
     newTransaction.setId(nextId++);
     transactions.push_back(newTransaction);
